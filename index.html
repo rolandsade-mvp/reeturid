@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="et">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Reeturid</title>
+<meta name="theme-color" content="#0c0e11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Figtree:wght@400;600;800&display=swap">
+<style>
+/* Layout: a candlelit castle hall. One dark look on purpose: the TV is the round table, the phone is a sealed letter. */
+:root {
+  --bg: #0c0e11;
+  --panel: #161a20;
+  --panel-2: #1f242c;
+  --line: #2c323c;
+  --ink: #f0e8d8;
+  --muted: #a69d8d;
+  --gold: #d6a84c;
+  --gold-ink: #1a1306;
+  --red: #c0352b;
+  --red-soft: #3a1513;
+  --green: #6fbf73;
+  --display: "Cinzel", "Times New Roman", Georgia, serif;
+  --body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: radial-gradient(ellipse at 50% -10%, #2a1f12 0%, transparent 55%), var(--bg);
+  background-attachment: fixed;
+  color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.45;
+  padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(16px, env(safe-area-inset-left, 0px));
+}
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: .04em; margin: 0; text-wrap: balance; }
+.muted { color: var(--muted); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 20px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel-2); font-weight: 800; cursor: pointer; }
+.btn:hover { border-color: var(--muted); }
+.btn.gold { background: var(--gold); border-color: var(--gold); color: var(--gold-ink); }
+.btn.red { background: var(--red); border-color: var(--red); color: #fff; }
+.btn.quiet { background: transparent; }
+.btn:disabled { opacity: .4; cursor: default; }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--panel-2); border: 1px solid var(--gold); padding: 12px 18px; border-radius: 12px; z-index: 50; max-width: calc(100% - 32px); text-align: center; }
+.err { color: #ff9b8f; font-weight: 600; }
+
+/* ---------- landing ---------- */
+.landing { max-width: 440px; margin: 0 auto; padding-block: 12vh 40px; display: grid; gap: 28px; text-align: center; }
+.logo { font-family: var(--display); font-weight: 900; font-size: clamp(48px, 12vw, 72px); letter-spacing: .12em; color: var(--gold); text-shadow: 0 0 30px rgb(214 168 76 / .35); line-height: 1; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 14px; text-align: left; }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 14px; font-weight: 600; color: var(--muted); }
+.field input { height: 54px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); padding: 0 14px; font-size: 20px; font-weight: 700; width: 100%; }
+.field input.code { text-transform: uppercase; letter-spacing: .3em; text-align: center; font-family: var(--display); }
+
+/* ---------- phone ---------- */
+.phone { max-width: 520px; margin: 0 auto; padding-block: 14px 48px; display: grid; gap: 16px; }
+.phead { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.phead .who { font-weight: 800; font-size: 18px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.phead .tag { font-family: var(--display); color: var(--gold); letter-spacing: .14em; font-size: 14px; }
+.seal { position: relative; border-radius: 18px; border: 1px solid var(--line); background: linear-gradient(160deg, #221a10, #14110c); min-height: 220px; display: grid; place-items: center; text-align: center; padding: 22px; user-select: none; -webkit-user-select: none; touch-action: none; cursor: pointer; }
+.seal .wax { width: 84px; height: 84px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #e0594c, #8f1f17 70%); box-shadow: inset 0 -4px 10px rgb(0 0 0 / .4), 0 6px 18px rgb(0 0 0 / .5); display: grid; place-items: center; font-family: var(--display); font-weight: 900; font-size: 34px; color: #f6d9c7; margin: 0 auto 12px; }
+.seal .hint { color: var(--muted); font-weight: 600; }
+.role { display: grid; gap: 10px; }
+.role .rname { font-family: var(--display); font-weight: 900; font-size: 44px; letter-spacing: .1em; line-height: 1; }
+.role.traitor .rname { color: var(--red); text-shadow: 0 0 24px rgb(192 53 43 / .55); }
+.role.faithful .rname { color: var(--gold); }
+.role p { margin: 0; }
+.task { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 14px; }
+.task h2 { font-size: 22px; }
+.choices { display: grid; gap: 8px; }
+.choice { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 56px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel-2); font-weight: 800; font-size: 19px; text-align: left; cursor: pointer; }
+.choice[aria-pressed="true"] { border-color: var(--gold); background: #33280f; box-shadow: inset 0 0 0 1px var(--gold); }
+.choice small { font-weight: 600; color: var(--muted); font-size: 13px; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--panel-2); border-radius: 12px; padding: 4px; gap: 4px; }
+.seg button { min-height: 44px; border: 0; border-radius: 9px; background: transparent; font-weight: 800; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--red); color: #fff; }
+.banner { border-radius: 14px; padding: 14px 16px; background: var(--panel-2); border: 1px solid var(--line); }
+.banner.gold { border-color: var(--gold); }
+.banner.red { border-color: var(--red); background: var(--red-soft); }
+.big-emoji { font-size: 56px; line-height: 1; }
+.overlay { position: fixed; inset: 0; background: rgb(8 9 11 / .94); z-index: 40; display: grid; place-items: center; padding: 24px; }
+.overlay .task { max-width: 460px; width: 100%; }
+
+/* ---------- TV ---------- */
+.tv { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; gap: 18px; padding-block: 18px; max-width: 1600px; margin: 0 auto; }
+.tvtop { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.tvtop .logo { font-size: 34px; margin-right: auto; }
+.pot { font-family: var(--display); font-weight: 700; font-size: 26px; color: var(--gold); display: flex; align-items: center; gap: 8px; }
+.pot button { min-height: 34px; padding: 0 10px; border-radius: 8px; font-size: 14px; }
+.tvmain { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 22px; min-height: 0; }
+@media (max-width: 1000px) { .tvmain { grid-template-columns: minmax(0, 1fr); } }
+.stage { background: radial-gradient(ellipse at 50% 0%, #241b10, var(--panel) 70%); border: 1px solid var(--line); border-radius: 22px; padding: clamp(18px, 3vw, 44px); display: grid; align-content: center; justify-items: center; gap: 22px; text-align: center; min-height: 60vh; min-width: 0; }
+.stage h1 { font-size: clamp(34px, 4.6vw, 72px); }
+.stage .sub { font-size: clamp(18px, 1.8vw, 26px); color: var(--muted); max-width: 900px; }
+.stage .huge { font-family: var(--display); font-weight: 900; font-size: clamp(54px, 8vw, 140px); line-height: 1; letter-spacing: .06em; overflow-wrap: anywhere; }
+.huge.traitor { color: var(--red); text-shadow: 0 0 40px rgb(192 53 43 / .6); }
+.huge.faithful { color: var(--gold); text-shadow: 0 0 40px rgb(214 168 76 / .4); }
+.fade-in { animation: fadeIn 1.2s ease both; }
+@keyframes fadeIn { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+.suspense { animation: pulse 1.1s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .35; } }
+.side { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.side h3 { font-size: 15px; letter-spacing: .14em; color: var(--muted); }
+.plist { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.plist li { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 8px; font-weight: 600; }
+.plist li.out { color: var(--muted); text-decoration: line-through; text-decoration-color: rgb(166 157 141 / .5); }
+.plist .ic { width: 22px; text-align: center; flex: none; }
+.plist .r { margin-left: auto; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; text-decoration: none; display: inline-block; }
+.plist .r.traitor { color: var(--red); }
+.plist .r.faithful { color: var(--gold); }
+.plist button { margin-left: auto; border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 18px; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 12px; }
+.controls .grow { flex: 1; }
+.controls .btn { min-height: 52px; font-size: 18px; }
+.controls select { height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); padding: 0 10px; max-width: 220px; }
+.qrwrap { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(18px, 3vw, 48px); align-items: center; text-align: left; }
+@media (max-width: 760px) { .qrwrap { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; } }
+#qr { background: #fff; padding: 14px; border-radius: 16px; line-height: 0; }
+#qr img, #qr canvas { width: min(34vh, 320px) !important; height: auto !important; display: block; }
+.codebig { font-family: var(--display); font-weight: 900; font-size: clamp(40px, 6vw, 86px); letter-spacing: .25em; color: var(--gold); }
+.url { font-size: 16px; color: var(--muted); overflow-wrap: anywhere; }
+.setup { display: grid; gap: 10px; }
+.setup label { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.setup input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--gold); }
+.grid-voted { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 1100px; }
+.pill { padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); font-weight: 800; font-size: clamp(16px, 1.5vw, 22px); }
+.pill.done { border-color: var(--green); color: var(--green); }
+.votes { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; width: 100%; max-width: 1200px; }
+.vcard { background: var(--panel-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; font-size: clamp(18px, 1.6vw, 24px); font-weight: 800; display: flex; gap: 10px; justify-content: space-between; min-width: 0; }
+.vcard.new { animation: fadeIn .5s ease both; }
+.vcard span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vcard .arrow { color: var(--red); flex: none; }
+.tally { display: grid; gap: 8px; width: 100%; max-width: 760px; }
+.tally .row { display: grid; grid-template-columns: 180px minmax(0, 1fr) 48px; gap: 12px; align-items: center; font-weight: 800; font-size: 20px; text-align: left; }
+.tally .bar { height: 18px; border-radius: 9px; background: var(--panel-2); overflow: hidden; }
+.tally .bar i { display: block; height: 100%; background: var(--red); transition: width .5s ease; }
+.tally .row span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.moon { width: 120px; height: 120px; border-radius: 50%; box-shadow: inset -28px -10px 0 0 #e9e0c6; filter: drop-shadow(0 0 30px rgb(233 224 198 / .35)); }
+.status-row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.chip { padding: 8px 14px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--line); font-weight: 800; }
+.chip.ok { border-color: var(--green); color: var(--green); }
+.rules { text-align: left; max-width: 900px; color: var(--muted); font-size: clamp(15px, 1.3vw, 19px); display: grid; gap: 6px; }
+.rules b { color: var(--ink); }
+.endgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; width: 100%; max-width: 1200px; }
+.endgrid div { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; font-weight: 800; display: grid; gap: 2px; }
+.endgrid div.traitor { border-color: var(--red); }
+.endgrid small { font-weight: 600; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .fade-in, .vcard, .suspense { animation: none; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+"use strict";
+// ---------------------------------------------------------------- connection
+const API = "https://nvqutxaudvcppybgpjjg.supabase.co/rest/v1/rpc/";
+const KEY = "sb_publishable_TkZQfa8imDNY6thBIpd_DQ_9Wl_48Ra";
+
+// ---------------------------------------------------------------- all wording in one place (Estonian)
+const T = {
+  title: "Reeturid",
+  joinGame: "Liitu mänguga", code: "Mängu kood", join: "Liitu", hostNew: "Loo uus mäng (saatejuht)",
+  name: "Sinu nimi", pin: "Vali 4-kohaline PIN", pinHelp: "PIN-iga saad hiljem teisest telefonist või pärast lehe sulgemist tagasi tulla. Ära ütle seda kellelegi.",
+  joining: "Liitun…",
+  err: {
+    bad_code: "Sellist mängu ei leitud. Kontrolli koodi.", bad_name: "Kirjuta oma nimi (kuni 24 tähemärki).", bad_pin: "PIN peab olema 4 numbrit.",
+    name_taken: "See nimi on juba võetud. Kui see oled sina, sisesta oma õige PIN.", locked_out: "Liiga palju valesid PIN-e. Palu saatejuhil see avada.",
+    started: "Mäng on juba alanud. Uued mängijad ei saa enam liituda.", full: "Mäng on täis.", bad_token: "Sinu sessioon on aegunud. Liitu uuesti oma nime ja PIN-iga.",
+    wrong_phase: "Seda ei saa praegu teha.", not_alive: "Sa ei ole enam mängus.", bad_target: "Selle inimese valida ei saa.",
+    too_few: "Vaja on vähemalt 4 mängijat.", no_votes: "Keegi pole veel hääletanud.", has_winner: "Mängul on juba võitja.", locked: "Valik on juba lukus.",
+    no_recruit: "Täna öösel värvata ei saa.", no_offer: "Pakkumine pole enam kehtiv.", net: "Ühendus katkes. Proovin uuesti…", other: "Midagi läks valesti."
+  },
+  faithful: "Ustav", traitor: "Reetur", faithfulPl: "Ustavad", traitorPl: "Reeturid",
+  holdRole: "Hoia näpuga, et näha oma rolli", holdAgain: "Hoia, et rolli uuesti näha",
+  youFaithful: "Sinu ülesanne on reeturid üles leida ja välja hääletada.",
+  youTraitor: "Ära lase end vahele võtta. Öösel valite koos ohvri.",
+  fellows: "Sinu kaasreeturid:", noFellows: "Oled ainus reetur.",
+  recruitedNote: "Sind värvati reeturiks. Tere tulemast varjudesse.",
+  lobbyWait: "Oled sees! Ootame, kuni saatejuht rollid jagab.", lobbyJoined: n => `Liitunud: ${n}`,
+  lookTv: "Vaata telerit 📺",
+  vote: "Ümarlaud: keda pagendada?", revote: "Viik! Hääleta uuesti", voteHelp: "Saad valikut muuta, kuni saatejuht hääletuse sulgeb.",
+  endvote: "Lõpuhääletus", endQ: "Kas reeturid on kõik leitud?", endEnd: "Lõpetame mängu", endBanish: "Pagendame veel",
+  night: "Öine ülesanne", openTask: "Ava öine ülesanne", taskHint: "Kõik teevad öösel ülesande. Ava see nii, et keegi su ekraani ei näe.",
+  murder: "Mõrv", recruit: "Värbamine", pickVictim: "Keda täna öösel mõrvate?", pickRecruit: "Keda värbate enda hulka?",
+  agreeHint: "Kõik reeturid peavad valima sama inimese.", agreed: "Olete ühel meelel ✓", partnerPick: (n, t) => `${n} valis: ${t}`,
+  suspect: "Keda kahtlustad kõige rohkem?", suspectHint: "Kõigi vastuste summa näidatakse hommikul teleris (nimesid ei näidata).",
+  done: "Tehtud ✓ Võid valikut muuta.", close: "Sulge",
+  recruitWait: n => `Pakkumine on tehtud ${n}-le. Ootame vastust…`, recruitYes: n => `${n} nõustus! Ta on nüüd üks teist.`, recruitNo: n => `${n} keeldus.`,
+  offerTitle: "Reeturid tahavad sind enda hulka", offerText: "Kui nõustud, saad reeturiks ja näed teisi reetureid. Kui keeldud, jääd ustavaks.", accept: "Nõustun", decline: "Keeldun",
+  shield: "🛡️ Sul on kilp: täna öösel ei saa sind mõrvata.",
+  murdered: "Sind mõrvati öösel. 👻 Sa oled nüüd kummitus: mängid meeskonnamänge edasi, aga ei hääleta.",
+  banished: "Sind pagendati. 👻 Mängid meeskonnamänge edasi, aga ei hääleta.",
+  over: w => w === "faithful" ? "Ustavad võitsid!" : "Reeturid võitsid!", wereYou: r => `Sina olid: ${r}`,
+  // TV
+  scan: "Skanni ja liitu", orGo: "või ava", joined: "Liitunud",
+  traitorsAuto: n => `Reetureid: ${n} (automaatselt)`, traitorsSet: "Reeturite arv", auto: "Automaatne",
+  tellCount: "Ütle mängijatele, mitu reeturit on", recruiting: "Värbamine (kui reetur pagendatakse)",
+  deal: "Jaga rollid", newGame: "Uus mäng", reallyNew: "Kindlasti uus mäng? Praegune mäng kaob ekraanilt.",
+  rolesDealt: "Rollid on jagatud", rolesSub: "Vaadake oma telefoni. Ärge näidake kellelegi!", inGame: n => `Mängus on ${n} ${n === 1 ? "reetur" : "reeturit"}.`,
+  rules: ["<b>Ümarlaud</b> iga kahe tunni tagant: kõik hääletavad telefonis, keda pagendada.", "<b>Öösel</b> valivad reeturid ohvri. Kõik teised teevad samal ajal oma öise ülesande.", "<b>Hommikusöögil</b> selgub, kes öösel mõrvati.", "<b>Mängude</b> võitjad saavad kilbi: kilbiga mängijat ei saa öösel mõrvata.", "<b>Kullapott</b> kasvab iga mänguga. Lõpus jagavad võitjad selle omavahel."],
+  startRT: "Alusta ümarlauda", rt: n => `Ümarlaud ${n}`, rtSub: "Arutage, siis hääletage telefonis.", votedN: (a, b) => `${a}/${b} on hääletanud`,
+  closeVote: "Sulge hääletus", notAll: "Kõik pole veel hääletanud. Sulge ikkagi?",
+  tie: "Viik!", tieSub: names => `Hääletage uuesti: ${names}`,
+  reveal: "Hääled", skip: "Näita kõik kohe", banishedIs: "Pagendatud:", tieBreak: "Teine viik: otsustas loos.", revealRole: "Paljasta roll",
+  wasA: n => `${n} oli…`, ultimatum: "Viimane reetur on läinud… aga loss ei maga. Keegi teie seast on valitud uueks reeturiks.",
+  startNight: "Öö algab", nightTitle: "Öö on saabunud", nightSub: "Kõik teevad oma telefonis öise ülesande.", tasksDone: (a, b) => `Ülesanded: ${a}/${b}`,
+  traitorsReady: "Reeturid on otsustanud ✓", traitorsThinking: "Reeturid alles mõtlevad…", breakfast: "Hommikusöök ☀️",
+  breakfastTitle: "Hommikusöök", breakfastSuspense: "Kõik tulevad hommikusöögile… peale ühe?", murderedIs: "Täna öösel mõrvati", nobody: "Täna öösel ei surnud keegi!",
+  suspects: "Öised kahtlustused", newRT: "Uus ümarlaud", endVoteBtn: "Lõpuhääletus",
+  endTitle: "Lõpuhääletus", endSub: "Kui kõik hääletavad lõpetamise poolt, mäng lõpeb ja rollid paljastatakse.", closeEnd: "Sulge lõpuhääletus",
+  endResult: (e, b) => `Lõpetada: ${e} · Pagendada: ${b}. Mäng jätkub!`,
+  dayTitle: "Mängud käivad", daySub: "Järgmine ümarlaud tuleb peagi.",
+  winnerReady: w => w === "faithful" ? "Kõik reeturid on leitud!" : "Reetureid on sama palju kui ustavaid. Reeturid on võitnud!",
+  showWinners: "Näita võitjaid", finish: "Lõpeta mäng", reallyFinish: "Lõpetada mäng ja paljastada kõik rollid?",
+  overTitle: w => w === "faithful" ? "Ustavad võitsid!" : "Reeturid võitsid!", potShare: n => `Kullapott: ${n} 🪙 jagage omavahel!`,
+  potLbl: "Kullapott", shieldBtn: "🛡️ Anna kilp", shieldPick: "Kellele?", shieldGiven: "Kilp antud ✓", shieldNone: "Kilpi pole",
+  playersH: "Mängijad", alive: "elus", murderedL: "mõrvatud", banishedL: "pagendatud", hostInfo: "Saatejuht ei näe rolle. Võid ka ise mängida oma telefonis.",
+  unlock: "Ava", lockedOutL: "Lukus:"
+};
+
+// ---------------------------------------------------------------- helpers
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const lsGet = k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const lsDel = k => { try { localStorage.removeItem(k); } catch {} };
+async function rpc(fn, args) {
+  let r;
+  try { r = await fetch(API + fn, { method: "POST", headers: { apikey: KEY, "Content-Type": "application/json" }, body: JSON.stringify(args) }); }
+  catch { const e = new Error("net"); e.code = "net"; throw e; }
+  const t = await r.text(); let j = null; try { j = t ? JSON.parse(t) : null; } catch {}
+  if (!r.ok) { const e = new Error((j && j.message) || "other"); e.code = (j && j.message) || "other"; throw e; }
+  return j;
+}
+const errText = e => T.err[e && e.code] || T.err.other;
+let toastT = null;
+function toast(msg) {
+  let el = $("#toast"); if (!el) { el = document.createElement("div"); el.id = "toast"; el.className = "toast"; el.setAttribute("role", "status"); document.body.append(el); }
+  el.textContent = msg; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => el.hidden = true, 3200);
+}
+// The page's own confirm step (no browser dialogs): the first click arms the button for a few seconds.
+function armed(btn, text, fn) {
+  if (!btn) return;
+  const label = btn.textContent; let t = null;
+  btn.onclick = () => {
+    if (btn.dataset.armed) { clearTimeout(t); delete btn.dataset.armed; fn(); return; }
+    btn.dataset.armed = "1"; btn.textContent = text; t = setTimeout(() => { delete btn.dataset.armed; btn.textContent = label; }, 3500);
+  };
+}
+const byId = (S, id) => S.players.find(p => p.id === id);
+const nameOf = (S, id) => byId(S, id)?.name || "?";
+const aliveOf = S => S.players.filter(p => p.status === "alive");
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const app = $("#app");
+const params = new URLSearchParams(location.search);
+
+// Poll the cheap version number; fetch the full state only when something changed.
+function poller(code, load, every = 2000) {
+  let v = -1, busy = false, stop = false;
+  const tick = async () => {
+    if (stop || busy) return; busy = true;
+    try { const nv = await rpc("reeturid_version", { p_code: code }); if (nv !== v) { v = nv; await load(); } }
+    catch {}
+    busy = false;
+  };
+  const id = setInterval(tick, every); tick();
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) { v = -1; tick(); } });
+  return { bump: () => { v = -1; tick(); }, stop: () => { stop = true; clearInterval(id); } };
+}
+
+// ---------------------------------------------------------------- landing
+function landing() {
+  app.innerHTML = `
+    <main class="landing">
+      <div><div class="logo">${T.title}</div></div>
+      <form class="card" id="joinForm">
+        <h2>${T.joinGame}</h2>
+        <div class="field"><label for="code">${T.code}</label><input id="code" class="code" maxlength="4" autocomplete="off" autocapitalize="characters" required></div>
+        <button class="btn gold" type="submit">${T.join}</button>
+      </form>
+      <button class="btn quiet" id="host" type="button">${T.hostNew}</button>
+    </main>`;
+  $("#joinForm").onsubmit = e => { e.preventDefault(); const c = $("#code").value.trim().toUpperCase(); if (c) location.search = "?g=" + encodeURIComponent(c); };
+  $("#host").onclick = () => { location.search = "?host"; };
+}
+
+// ---------------------------------------------------------------- phone
+function phone(code) {
+  const key = "rt-p-" + code;
+  let token = lsGet(key), S = null, taskOpen = false, taskTimer = null, mode = "murder", lastPhase = null, holding = false, pending = false;
+  const showJoin = (msg = "") => {
+    app.innerHTML = `
+      <main class="landing">
+        <div><div class="logo">${T.title}</div><p class="muted">${T.code}: <b>${esc(code)}</b></p></div>
+        <form class="card" id="jf">
+          <div class="field"><label for="nm">${T.name}</label><input id="nm" maxlength="24" autocomplete="nickname" required></div>
+          <div class="field"><label for="pin">${T.pin}</label><input id="pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off" required></div>
+          <p class="muted" style="margin:0;font-size:14px">${T.pinHelp}</p>
+          <p class="err" id="jerr" ${msg ? "" : "hidden"}>${esc(msg)}</p>
+          <button class="btn gold" type="submit" id="jb">${T.join}</button>
+        </form>
+      </main>`;
+    $("#jf").onsubmit = async e => {
+      e.preventDefault(); const b = $("#jb"); b.disabled = true; b.textContent = T.joining;
+      try {
+        const r = await rpc("reeturid_join", { p_code: code, p_name: $("#nm").value, p_pin: $("#pin").value });
+        token = r.token; lsSet(key, token); start();
+      } catch (err) { $("#jerr").hidden = false; $("#jerr").textContent = errText(err); b.disabled = false; b.textContent = T.join; }
+    };
+  };
+  const load = async () => {
+    try { S = await rpc("reeturid_me", { p_token: token }); if (holding) pending = true; else render(); }
+    catch (e) { if (e.code === "bad_token") { lsDel(key); token = null; showJoin(T.err.bad_token); P && P.stop(); } }
+  };
+  let P = null;
+  const start = () => { P = poller(code, load); };
+  const act = async (fn, args) => {
+    try { S = await rpc(fn, { p_token: token, ...args }); render(); }
+    catch (e) { toast(errText(e)); P && P.bump(); }
+  };
+
+  function roleCard(me) {
+    const isT = me.role === "traitor";
+    const fellows = isT ? (me.fellows.length ? `<p>${T.fellows} <b>${me.fellows.map(f => esc(f.name) + (f.status !== "alive" ? " (" + (f.status === "murdered" ? T.murderedL : T.banishedL) + ")" : "")).join(", ")}</b></p>` : `<p>${T.noFellows}</p>`) : "";
+    return `<div class="role ${isT ? "traitor" : "faithful"}">
+      <div class="rname">${isT ? T.traitor : T.faithful}</div>
+      <p>${isT ? T.youTraitor : T.youFaithful}</p>${fellows}${isT && me.newTraitor ? `<p class="muted">${T.recruitedNote}</p>` : ""}</div>`;
+  }
+  function render() {
+    const me = S.me, ph = S.phase;
+    if (lastPhase && lastPhase !== ph && navigator.vibrate) { try { navigator.vibrate(ph === "night" ? [120, 80, 120] : 80); } catch {} }
+    if (lastPhase !== ph) { taskOpen = false; }
+    lastPhase = ph;
+    const alive = me.status === "alive";
+    let body = "";
+    if (ph === "lobby") {
+      body = `<div class="task"><h2>${T.lobbyWait}</h2><p class="muted" style="margin:0">${T.lobbyJoined(S.players.length)}: ${S.players.map(p => esc(p.name)).join(", ")}</p></div>`;
+    } else if (ph === "over") {
+      const mine = me.role === "traitor" ? T.traitor : T.faithful;
+      body = `<div class="task" style="text-align:center"><div class="big-emoji">${S.winner === "faithful" ? "⚜️" : "🗡️"}</div><h2>${T.over(S.winner)}</h2><p style="margin:0">${T.wereYou("<b>" + mine + "</b>")}</p>${S.coins ? `<p class="muted" style="margin:0">${T.potShare(S.coins)}</p>` : ""}</div>`;
+    } else if (!alive) {
+      body = `<div class="banner">${me.status === "murdered" ? T.murdered : T.banished}</div><div class="banner"><b>${T.lookTv}</b></div>`;
+    } else if (ph === "vote" || ph === "revote") {
+      const opts = ph === "revote" ? S.candidates.map(id => byId(S, id)).filter(p => p && p.id !== me.id) : aliveOf(S).filter(p => p.id !== me.id);
+      body = `<div class="task"><h2>${ph === "revote" ? T.revote : T.vote}</h2>
+        <div class="choices">${opts.map(p => `<button type="button" class="choice" data-v="${p.id}" aria-pressed="${me.vote === p.id}">${esc(p.name)}${me.vote === p.id ? "<small>✓</small>" : ""}</button>`).join("")}</div>
+        <p class="muted" style="margin:0;font-size:14px">${T.voteHelp}</p></div>`;
+    } else if (ph === "endvote") {
+      body = `<div class="task"><h2>${T.endvote}</h2><p style="margin:0">${T.endQ}</p>
+        <div class="choices"><button type="button" class="choice" data-c="end" aria-pressed="${me.vote === "end"}">${T.endEnd}</button>
+        <button type="button" class="choice" data-c="banish" aria-pressed="${me.vote === "banish"}">${T.endBanish}</button></div>
+        <p class="muted" style="margin:0;font-size:14px">${T.voteHelp}</p></div>`;
+    } else if (ph === "night") {
+      body = taskOpen ? nightTask(me) : `<div class="task"><h2>${T.night}</h2><p class="muted" style="margin:0">${T.taskHint}</p>
+        ${me.nightPick ? `<p style="margin:0">${T.done}</p>` : ""}
+        <button type="button" class="btn gold" id="openTask">${T.openTask}</button></div>`;
+    } else {
+      body = `<div class="banner"><b>${T.lookTv}</b></div>`;
+    }
+    const seal = ph === "lobby" ? "" : `
+      <div class="seal" id="seal" role="button" tabindex="0" aria-label="${T.holdRole}">
+        <div id="sealClosed"><div class="wax">R</div><div class="hint">${ph === "roles" ? T.holdRole : T.holdAgain}</div></div>
+        <div id="sealOpen" hidden>${roleCard(me)}</div>
+      </div>`;
+    app.innerHTML = `
+      <main class="phone">
+        <div class="phead"><span class="who">${esc(me.name)}</span><span class="tag">${T.title.toUpperCase()}</span></div>
+        ${me.shield && alive && ph !== "over" ? `<div class="banner gold">${T.shield}</div>` : ""}
+        ${body}
+        ${seal}
+      </main>
+      ${me.recruitOffer ? `<div class="overlay"><div class="task"><h2>${T.offerTitle}</h2><p style="margin:0">${T.offerText}</p>
+        <button type="button" class="btn red" id="acc">${T.accept}</button><button type="button" class="btn" id="dec">${T.decline}</button></div></div>` : ""}`;
+    bind(me);
+  }
+  function nightTask(me) {
+    const others = aliveOf(S).filter(p => p.id !== me.id);
+    if (me.role === "traitor" && me.actsTonight) {
+      const traitorIds = new Set([me.id, ...me.fellows.map(f => f.id)]);
+      const targets = others.filter(p => !traitorIds.has(p.id));
+      const pick = me.nightPick && me.nightPick.kind !== "suspect" ? me.nightPick : null;
+      if (pick) mode = pick.kind;
+      if (!me.canRecruit) mode = "murder";
+      const rs = me.recruitState, rt = me.recruitTarget ? nameOf(S, me.recruitTarget) : "";
+      const partner = me.picks.filter(p => p.id !== me.id).map(p => `<div class="banner">${T.partnerPick(esc(nameOf(S, p.id)), (p.kind === "recruit" ? T.recruit + ": " : "") + esc(nameOf(S, p.target)))}</div>`).join("");
+      const allAgree = me.picks.length === me.fellows.filter(f => f.status === "alive").length + 1 && new Set(me.picks.map(p => p.kind + p.target)).size === 1;
+      return `<div class="task"><h2>${mode === "recruit" ? T.pickRecruit : T.pickVictim}</h2>
+        ${me.canRecruit && !rs ? `<div class="seg"><button type="button" data-mode="murder" aria-pressed="${mode === "murder"}">${T.murder}</button><button type="button" data-mode="recruit" aria-pressed="${mode === "recruit"}">${T.recruit}</button></div>` : ""}
+        ${rs === "offered" ? `<div class="banner red">${T.recruitWait(esc(rt))}</div>` : rs === "accepted" ? `<div class="banner red">${T.recruitYes(esc(rt))}</div>` : rs === "declined" ? `<div class="banner">${T.recruitNo(esc(rt))}</div>` : `
+        <div class="choices">${targets.map(p => `<button type="button" class="choice" data-n="${p.id}" aria-pressed="${pick && pick.target === p.id && pick.kind === mode}">${esc(p.name)}</button>`).join("")}</div>
+        ${partner}<p class="muted" style="margin:0;font-size:14px">${allAgree ? T.agreed : T.agreeHint}</p>`}
+        <button type="button" class="btn" id="closeTask">${T.close}</button></div>`;
+    }
+    const pick = me.nightPick && me.nightPick.kind === "suspect" ? me.nightPick.target : null;
+    return `<div class="task"><h2>${T.suspect}</h2>
+      <div class="choices">${others.map(p => `<button type="button" class="choice" data-n="${p.id}" aria-pressed="${pick === p.id}">${esc(p.name)}</button>`).join("")}</div>
+      <p class="muted" style="margin:0;font-size:14px">${pick ? T.done : T.suspectHint}</p>
+      <button type="button" class="btn" id="closeTask">${T.close}</button></div>`;
+  }
+  function bind(me) {
+    const seal = $("#seal");
+    if (seal) {
+      // While the role is shown, updates wait so the card doesn't snap shut under the finger.
+      const open = v => { holding = v; $("#sealOpen").hidden = !v; $("#sealClosed").hidden = v; if (!v && pending) { pending = false; render(); } };
+      seal.addEventListener("pointerdown", e => { e.preventDefault(); open(true); });
+      ["pointerup", "pointerleave", "pointercancel"].forEach(t => seal.addEventListener(t, () => open(false)));
+      seal.addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); open(true); } });
+      seal.addEventListener("keyup", () => open(false));
+      seal.addEventListener("contextmenu", e => e.preventDefault());
+    }
+    document.querySelectorAll("[data-v]").forEach(b => b.onclick = () => act("reeturid_vote", { p_target: b.dataset.v, p_choice: null }));
+    document.querySelectorAll("[data-c]").forEach(b => b.onclick = () => act("reeturid_vote", { p_target: null, p_choice: b.dataset.c }));
+    const ot = $("#openTask"); if (ot) ot.onclick = () => { taskOpen = true; render(); idle(); };
+    const ct = $("#closeTask"); if (ct) ct.onclick = () => { taskOpen = false; render(); };
+    document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { mode = b.dataset.mode; render(); idle(); });
+    document.querySelectorAll("[data-n]").forEach(b => b.onclick = () => {
+      const kind = me.role === "traitor" && me.actsTonight ? mode : "suspect";
+      act("reeturid_night", { p_kind: kind, p_target: b.dataset.n }); idle();
+    });
+    const acc = $("#acc"), dec = $("#dec");
+    if (acc) acc.onclick = () => act("reeturid_recruit_answer", { p_accept: true });
+    if (dec) dec.onclick = () => act("reeturid_recruit_answer", { p_accept: false });
+  }
+  // The night task closes itself after 25 seconds without a tap, so it is not left open on the table.
+  function idle() { clearTimeout(taskTimer); taskTimer = setTimeout(() => { if (taskOpen) { taskOpen = false; render(); } }, 25000); }
+
+  if (token) start(); else showJoin();
+}
+
+// ---------------------------------------------------------------- TV / host
+function tv() {
+  let H = lsGet("rt-host"), S = null, P = null, anim = { key: null, step: 0, timer: null, done: false };
+  const create = async () => {
+    app.innerHTML = `<main class="landing"><div class="logo">${T.title}</div><p class="muted">…</p></main>`;
+    try { H = await rpc("reeturid_create", { p_settings: {} }); lsSet("rt-host", H); boot(); }
+    catch (e) { app.innerHTML = `<main class="landing"><div class="logo">${T.title}</div><p class="err">${esc(errText(e))}</p></main>`; }
+  };
+  const load = async () => {
+    try { S = await rpc("reeturid_host", { p_host: H.hostToken }); render(); }
+    catch (e) { if (e.code === "bad_host") { lsDel("rt-host"); create(); } }
+  };
+  const act = async (a, arg = {}) => {
+    try { S = await rpc("reeturid_act", { p_host: H.hostToken, p_action: a, p_arg: arg }); render(); }
+    catch (e) { toast(errText(e)); P && P.bump(); }
+  };
+  const boot = () => { P && P.stop(); P = poller(H.code, load, 1500); };
+  const joinUrl = () => location.origin + location.pathname + "?g=" + H.code;
+
+  function sideList() {
+    // Keep the result off the list until the TV has revealed it.
+    const hiddenOut = (S.phase === "votes" && !anim.done) ? S.banishedId : (S.phase === "breakfast" && !anim.step) ? S.murderedId : null;
+    const view = S.players.map(p => p.id === hiddenOut ? { ...p, status: "alive" } : p);
+    const ic = p => p.status === "murdered" ? "☠" : p.status === "banished" ? "⚖" : "●";
+    return `<aside class="side"><h3>${T.playersH.toUpperCase()} · ${view.filter(p => p.status === "alive").length}/${S.players.length}</h3>
+      <ul class="plist">${view.map(p => `<li class="${p.status !== "alive" ? "out" : ""}"><span class="ic" aria-hidden="true">${ic(p)}</span><span>${esc(p.name)}</span>
+        ${S.phase === "lobby" ? `<button type="button" data-kick="${p.id}" aria-label="Eemalda ${esc(p.name)}">×</button>` : p.role ? `<span class="r ${p.role}">${p.role === "traitor" ? T.traitor : T.faithful}</span>` : p.status !== "alive" ? `<span class="r">${p.status === "murdered" ? T.murderedL : T.banishedL}</span>` : ""}</li>`).join("")}</ul>
+      ${S.host.lockedOut.length ? `<p class="muted" style="margin:0">${T.lockedOutL} ${S.host.lockedOut.map(p => `${esc(p.name)} <button type="button" class="btn quiet" data-unlock="${p.id}">${T.unlock}</button>`).join(" ")}</p>` : ""}
+      <p class="muted" style="margin:0;font-size:13px">${T.hostInfo}</p></aside>`;
+  }
+  function stage() {
+    const ph = S.phase, alive = aliveOf(S);
+    if (ph === "lobby") {
+      const auto = S.host.autoTraitors, set = +S.settings.traitors || 0;
+      return `<div class="qrwrap"><div id="qr" aria-label="QR"></div>
+        <div style="display:grid;gap:14px"><h1>${T.scan}</h1><div class="codebig">${esc(H.code)}</div><div class="url">${T.orGo} ${esc(joinUrl())}</div>
+        <div class="setup">
+          <label for="tc">${T.traitorsSet}: <select id="tc"><option value="0">${T.auto} (${auto})</option>${[1, 2, 3, 4, 5].map(n => `<option value="${n}" ${set === n ? "selected" : ""}>${n}</option>`).join("")}</select></label>
+          <label><input type="checkbox" id="tellCount" ${S.settings.tellCount !== false ? "checked" : ""}> ${T.tellCount}</label>
+          <label><input type="checkbox" id="recr" ${S.settings.recruiting !== false ? "checked" : ""}> ${T.recruiting}</label>
+        </div></div></div>`;
+    }
+    if (ph === "roles") return `<h1 class="fade-in">${T.rolesDealt}</h1><p class="sub">${T.rolesSub}</p>${S.traitorCount ? `<p class="sub"><b>${T.inGame(S.traitorCount)}</b></p>` : ""}<div class="rules">${T.rules.map(r => `<div>${r}</div>`).join("")}</div>`;
+    if (ph === "vote" || ph === "revote" || ph === "endvote") {
+      const pool = alive, n = pool.filter(p => p.voted).length;
+      const title = ph === "endvote" ? T.endTitle : ph === "revote" ? T.tie : T.rt(S.round);
+      const sub = ph === "endvote" ? T.endSub : ph === "revote" ? T.tieSub(S.candidates.map(id => esc(nameOf(S, id))).join(" / ")) : T.rtSub;
+      return `<h1>${title}</h1><p class="sub">${sub}</p><div class="grid-voted">${pool.map(p => `<span class="pill ${p.voted ? "done" : ""}">${p.voted ? "✓ " : ""}${esc(p.name)}</span>`).join("")}</div><p class="sub"><b>${T.votedN(n, pool.length)}</b></p>`;
+    }
+    if (ph === "votes") {
+      const key = "votes" + S.round + ":" + S.banishedId;
+      if (anim.key !== key) { clearInterval(anim.timer); anim = { key, step: 0, done: false, order: shuffle(S.lastVote) }; anim.timer = setInterval(() => { anim.step++; if (anim.step >= anim.order.length) { clearInterval(anim.timer); anim.done = true; } render(); }, 1900); }
+      const shown = anim.order.slice(0, anim.step), tally = {};
+      shown.forEach(v => tally[v.targetId] = (tally[v.targetId] || 0) + 1);
+      const max = Math.max(1, ...Object.values(tally));
+      return `<h1>${T.reveal}</h1>
+        <div class="votes">${shown.map((v, i) => `<div class="vcard${i === shown.length - 1 && !anim.skipped ? " new" : ""}"><span>${esc(nameOf(S, v.voterId))}</span><span class="arrow">→</span><span>${esc(nameOf(S, v.targetId))}</span></div>`).join("")}</div>
+        <div class="tally">${Object.entries(tally).sort((a, b) => b[1] - a[1]).map(([id, c]) => `<div class="row"><span>${esc(nameOf(S, id))}</span><span class="bar"><i style="width:${c / max * 100}%"></i></span><span>${c}</span></div>`).join("")}</div>
+        ${anim.done ? `<div class="fade-in"><p class="sub">${T.banishedIs}</p><div class="huge">${esc(nameOf(S, S.banishedId))}</div>${S.tieBreak ? `<p class="sub">${T.tieBreak}</p>` : ""}</div>` : ""}`;
+    }
+    if (ph === "banished") {
+      const p = byId(S, S.banishedId), key = "ban" + S.round + p.id;
+      if (anim.key !== key) { clearInterval(anim.timer); anim = { key, step: 0 }; anim.timer = setTimeout(() => { anim.step = 1; render(); }, 2800); }
+      return `<h1>${T.wasA(esc(p.name))}</h1>
+        ${anim.step ? `<div class="huge fade-in ${p.role}">${p.role === "traitor" ? T.traitor.toUpperCase() : T.faithful.toUpperCase()}</div>
+          ${S.ultimatum ? `<p class="sub fade-in">${T.ultimatum}</p>` : ""}${S.winner ? `<p class="sub fade-in"><b>${T.winnerReady(S.winner)}</b></p>` : ""}` : `<div class="huge suspense">…</div>`}`;
+    }
+    if (ph === "night") {
+      return `<div class="moon" aria-hidden="true"></div><h1>${T.nightTitle}</h1><p class="sub">${T.nightSub}</p>
+        <div class="status-row"><span class="chip">${T.tasksDone(S.nightDone || 0, alive.length)}</span><span class="chip ${S.host.traitorsReady ? "ok" : ""}">${S.host.traitorsReady ? T.traitorsReady : T.traitorsThinking}</span></div>`;
+    }
+    if (ph === "breakfast") {
+      const key = "bf" + S.night;
+      if (anim.key !== key) { clearInterval(anim.timer); anim = { key, step: 0 }; anim.timer = setTimeout(() => { anim.step = 1; render(); }, 3200); }
+      const sus = (S.suspects || []).slice(0, 5), max = Math.max(1, ...sus.map(s => s.count));
+      return `<h1>${T.breakfastTitle}</h1>
+        ${!anim.step ? `<p class="sub suspense">${T.breakfastSuspense}</p>` : S.murderedId ? `<p class="sub fade-in">${T.murderedIs}</p><div class="huge fade-in">${esc(nameOf(S, S.murderedId))}</div>` : `<div class="huge fade-in faithful" style="font-size:clamp(40px,5vw,84px)">${T.nobody}</div>`}
+        ${anim.step && S.winner ? `<p class="sub fade-in"><b>${T.winnerReady(S.winner)}</b></p>` : ""}
+        ${anim.step && sus.length ? `<div class="tally fade-in"><p class="sub" style="margin:0">${T.suspects}</p>${sus.map(s => `<div class="row"><span>${esc(nameOf(S, s.id))}</span><span class="bar"><i style="width:${s.count / max * 100}%"></i></span><span>${s.count}</span></div>`).join("")}</div>` : ""}`;
+    }
+    if (ph === "day") return `<h1>${T.dayTitle}</h1><p class="sub">${S.endvote ? T.endResult(S.endvote.end, S.endvote.banish) : T.daySub}</p>`;
+    if (ph === "over") {
+      return `<h1 class="fade-in">${T.overTitle(S.winner)}</h1>${S.coins ? `<p class="sub">${T.potShare(S.coins)}</p>` : ""}
+        <div class="endgrid">${S.players.map(p => `<div class="${p.role}"><span>${esc(p.name)}</span><small>${p.role === "traitor" ? T.traitor : T.faithful} · ${p.status === "alive" ? T.alive : p.status === "murdered" ? T.murderedL : T.banishedL}</small></div>`).join("")}</div>`;
+    }
+    return "";
+  }
+  function controls() {
+    const ph = S.phase, w = S.winner, b = [];
+    const btn = (id, label, cls = "") => `<button type="button" class="btn ${cls}" id="${id}">${label}</button>`;
+    if (ph === "lobby") b.push(btn("deal", T.deal, "gold"));
+    if (ph === "roles") b.push(btn("rt", T.startRT, "gold"));
+    if (ph === "vote" || ph === "revote") b.push(btn("closeVote", T.closeVote, "gold"));
+    if (ph === "votes") b.push(anim.done ? btn("revealRole", T.revealRole, "red") : btn("skip", T.skip));
+    if (["banished", "breakfast", "day"].includes(ph)) {
+      if (w) b.push(btn("finish", T.showWinners, "gold"));
+      else {
+        if (ph !== "breakfast") b.push(btn("night", T.startNight, ph === "banished" ? "gold" : ""));
+        b.push(btn("rt", ph === "banished" ? T.newRT : T.startRT, ph !== "banished" ? "gold" : ""));
+        b.push(btn("endvote", T.endVoteBtn));
+      }
+    }
+    if (ph === "night") b.push(btn("breakfast", T.breakfast, "gold"));
+    if (ph === "endvote") b.push(btn("closeEnd", T.closeEnd, "gold"));
+    const shieldUi = !["lobby", "over"].includes(ph) ? `<span class="grow"></span>
+      <label class="muted" for="shSel">${S.host.shieldGiven ? T.shieldGiven : T.shieldNone}</label>
+      <select id="shSel"><option value="">${T.shieldPick}</option>${aliveOf(S).map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join("")}</select>
+      ${btn("shield", T.shieldBtn)}` : `<span class="grow"></span>`;
+    const tail = ph === "lobby" ? btn("newGame", T.newGame, "quiet") : ph !== "over" ? btn("finishNow", T.finish, "quiet") : btn("newGame", T.newGame, "quiet");
+    return `<div class="controls">${b.join("")}${shieldUi}${tail}</div>`;
+  }
+  function render() {
+    if (!S) return;
+    const focus = document.activeElement && document.activeElement.id;
+    const keepSel = $("#shSel") ? $("#shSel").value : "";
+    app.innerHTML = `<main class="tv">
+      <header class="tvtop"><div class="logo">${T.title.toUpperCase()}</div>
+        <div class="pot" aria-label="${T.potLbl}">🪙 <span>${S.coins}</span>
+          <button type="button" class="btn" data-coin="-1" aria-label="−1">−1</button><button type="button" class="btn" data-coin="1">+1</button><button type="button" class="btn" data-coin="5">+5</button></div>
+        <span class="muted">${T.code}: <b>${esc(H.code)}</b></span></header>
+      <div class="tvmain"><section class="stage" aria-live="polite">${stage()}</section>${sideList()}</div>
+      ${controls()}</main>`;
+    if (S.phase === "lobby" && window.QRCode) { new QRCode($("#qr"), { text: joinUrl(), width: 320, height: 320, correctLevel: QRCode.CorrectLevel.M }); }
+    if ($("#shSel")) $("#shSel").value = keepSel;
+    if (focus && document.getElementById(focus)) document.getElementById(focus).focus();
+    bind();
+  }
+  function bind() {
+    const on = (id, fn) => { const el = document.getElementById(id); if (el) el.onclick = fn; };
+    on("deal", () => act("deal"));
+    on("rt", () => act("roundtable"));
+    const cv = $("#closeVote");
+    if (cv) { const pool = aliveOf(S); if (pool.every(p => p.voted)) cv.onclick = () => act("close_vote"); else armed(cv, T.notAll, () => act("close_vote")); }
+    on("skip", () => { clearInterval(anim.timer); anim.step = anim.order.length; anim.done = true; anim.skipped = true; render(); });
+    on("revealRole", () => act("reveal_role"));
+    on("night", () => act("night"));
+    on("breakfast", () => act("breakfast"));
+    on("endvote", () => act("endvote"));
+    on("closeEnd", () => act("close_endvote"));
+    on("finish", () => act("finish"));
+    armed($("#finishNow"), T.reallyFinish, () => act("finish"));
+    armed($("#newGame"), T.reallyNew, () => { lsDel("rt-host"); P && P.stop(); create(); });
+    on("shield", () => { const id = $("#shSel").value; if (!id) return toast(T.shieldPick); act("shield", { id }).then(() => toast(T.shieldGiven)); });
+    document.querySelectorAll("[data-coin]").forEach(b => b.onclick = () => act("coins", { delta: +b.dataset.coin }));
+    document.querySelectorAll("[data-kick]").forEach(b => b.onclick = () => act("kick", { id: b.dataset.kick }));
+    document.querySelectorAll("[data-unlock]").forEach(b => b.onclick = () => act("unlock", { id: b.dataset.unlock }));
+    const tc = $("#tc"); if (tc) tc.onchange = () => act("settings", { traitors: +tc.value });
+    const tcount = $("#tellCount"); if (tcount) tcount.onchange = () => act("settings", { tellCount: tcount.checked });
+    const rc = $("#recr"); if (rc) rc.onchange = () => act("settings", { recruiting: rc.checked });
+  }
+  if (H && H.hostToken) boot(); else create();
+}
+
+// ---------------------------------------------------------------- start
+const g = params.get("g");
+if (params.has("host")) tv();
+else if (g) phone(g.trim().toUpperCase());
+else landing();
+</script>
+</body>
+</html>

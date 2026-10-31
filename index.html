@@ -203,7 +203,7 @@ const T = {
   scan: "Skanni ja liitu", orGo: "või ava", joined: "Liitunud",
   traitorsSet: "Reeturite arv", auto: "Automaatne",
   tellCount: "Näita mängijatele reeturite arvu", recruiting: "Värbamine (kui reetur pagendatakse)",
-  deal: "Jaga rollid", newGame: "Uus mäng", reallyNew: "Alustan uut mängu",
+  deal: "Jaga rollid", newGame: "Uus mäng", reallyNew: "Kinnitan: uus mäng",
   rolesDealt: "Rollid on jagatud", rolesSub: "Vaadake oma telefoni. Ärge näidake kellelegi!", inGame: n => n === 1 ? "Mängus on üks reetur." : `Mängus on ${n} reeturit.`,
   rules: ["<b>Ümarlaud</b> toimub iga kahe tunni tagant. Kõik hääletavad telefonis, keda pagendada.", "<b>Öösel</b> valivad reeturid ohvri. Kõik teised teevad samal ajal oma öise ülesande.", "<b>Hommikusöögil</b> selgub, kes öösel mõrvati.", "<b>Mängude</b> võitjad saavad kilbi: kilbiga mängijat ei saa öösel mõrvata.", "<b>Kullapott</b> kasvab iga mänguga. Lõpus jagavad võitjad poti omavahel."],
   startRT: "Alusta ümarlauda", rt: n => `Ümarlaud ${n}`, rtSub: "Arutage ja hääletage siis telefonis.", votedN: (a, b) => `Hääletanud: ${a}/${b}`,
@@ -289,7 +289,7 @@ function landing() {
       <button class="btn quiet" id="host" type="button">${T.hostNew}</button>
     </main>`;
   $("#joinForm").onsubmit = e => { e.preventDefault(); const c = $("#code").value.trim().toUpperCase(); if (c) location.search = "?g=" + encodeURIComponent(c); };
-  $("#host").onclick = () => { location.search = "?host"; };
+  $("#host").onclick = () => { location.search = "?host&new"; };
 }
 
 // ---------------------------------------------------------------- phone
@@ -543,7 +543,7 @@ function tv() {
       <label class="muted" for="shSel">${S.host.shieldGiven ? T.shieldGiven : T.shieldNone}</label>
       <select id="shSel"><option value="">${T.shieldPick}</option>${aliveOf(S).map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join("")}</select>
       ${btn("shield", T.shieldBtn)}` : `<span class="grow"></span>`;
-    const tail = ph === "lobby" ? btn("newGame", T.newGame, "quiet") : ph !== "over" ? btn("finishNow", T.finish, "quiet") : btn("newGame", T.newGame, "quiet");
+    const tail = (ph !== "lobby" && ph !== "over" ? btn("finishNow", T.finish, "quiet") : "") + btn("newGame", T.newGame, "quiet");
     return `<div class="controls">${b.join("")}${shieldUi}${tail}</div>`;
   }
   function render() {
@@ -576,7 +576,8 @@ function tv() {
     on("closeEnd", () => act("close_endvote"));
     on("finish", () => act("finish"));
     armed($("#finishNow"), T.reallyFinish, () => act("finish"));
-    armed($("#newGame"), T.reallyNew, () => { lsDel("rt-host"); P && P.stop(); create(); });
+    const fresh = () => { lsDel("rt-host"); P && P.stop(); anim = { key: null, step: 0 }; create(); };
+    if (S.phase === "lobby" && !S.players.length) on("newGame", fresh); else armed($("#newGame"), T.reallyNew, fresh);
     on("shield", () => { const id = $("#shSel").value; if (!id) return toast(T.shieldPick); act("shield", { id }).then(() => toast(T.shieldGiven)); });
     document.querySelectorAll("[data-coin]").forEach(b => b.onclick = () => act("coins", { delta: +b.dataset.coin }));
     document.querySelectorAll("[data-kick]").forEach(b => b.onclick = () => act("kick", { id: b.dataset.kick }));
@@ -585,6 +586,8 @@ function tv() {
     const tcount = $("#tellCount"); if (tcount) tcount.onchange = () => act("settings", { tellCount: tcount.checked });
     const rc = $("#recr"); if (rc) rc.onchange = () => act("settings", { recruiting: rc.checked });
   }
+  // "?host&new" (the start page's button) always makes a fresh game; the address then drops "new" so a reload keeps it.
+  if (params.has("new")) { lsDel("rt-host"); H = null; history.replaceState(null, "", location.pathname + "?host"); }
   if (H && H.hostToken) boot(); else create();
 }
 

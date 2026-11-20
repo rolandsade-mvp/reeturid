@@ -119,6 +119,9 @@ h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: .04e
 .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 12px; }
 .controls .grow { flex: 1; }
 .controls .btn { min-height: 52px; font-size: 18px; }
+.controls .shteam { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.controls .btn.small { min-height: 40px; font-size: 16px; padding: 0 12px; }
+.btn[aria-pressed="true"] { border-color: var(--gold); background: #33280f; color: var(--gold); }
 .controls select { height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); padding: 0 10px; max-width: 220px; }
 .qrwrap { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(18px, 3vw, 48px); align-items: center; text-align: left; }
 @media (max-width: 760px) { .qrwrap { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; } }
@@ -196,6 +199,8 @@ const T = {
   recruitWait: n => `Pakkumine on tehtud. Ootame, mida ${n} vastab…`, recruitYes: n => `${n} nõustus! Nüüd on ta üks teie seast.`, recruitNo: n => `${n} keeldus.`,
   offerTitle: "Reeturid tahavad sind enda hulka", offerText: "Kui nõustud, saad reeturiks ja näed teisi reetureid. Kui keeldud, jääd ustavaks.", accept: "Nõustun", decline: "Keeldun",
   shield: "🛡️ Sul on kilp: täna öösel ei saa sind mõrvata.",
+  shieldQ: "🛡️ Teie võistkond annab täna kilbi. Keda kaitsete?", shieldHint: "Kilbi saab see, kes saab teie võistkonnalt kõige rohkem hääli. Keegi ei saa teada, kellele see läks.",
+  shieldDone: "Kilbihääl antud ✓ Võid valikut muuta.", shieldNudge: "🛡️ Sina annad täna koos oma võistkonnaga kilbi. Ava öine ülesanne.",
   murdered: "Sind mõrvati öösel. 👻 Sa oled nüüd kummitus: mängid meeskonnamänge edasi, aga ei hääleta.",
   banished: "Sind pagendati. 👻 Mängid meeskonnamänge edasi, aga ei hääleta.",
   over: w => w === "faithful" ? "Ustavad võitsid!" : "Reeturid võitsid!", wereYou: r => `Sina olid ${r}.`,
@@ -205,7 +210,7 @@ const T = {
   tellCount: "Näita mängijatele reeturite arvu", recruiting: "Värbamine (kui reetur pagendatakse)",
   deal: "Jaga rollid", newGame: "Uus mäng", reallyNew: "Kinnitan: uus mäng",
   rolesDealt: "Rollid on jagatud", rolesSub: "Vaadake oma telefoni. Ärge näidake kellelegi!", inGame: n => n === 1 ? "Mängus on üks reetur." : `Mängus on ${n} reeturit.`,
-  rules: ["<b>Ümarlaud</b> toimub iga kahe tunni tagant. Kõik hääletavad telefonis, keda pagendada.", "<b>Öösel</b> valivad reeturid ohvri. Kõik teised teevad samal ajal oma öise ülesande.", "<b>Hommikusöögil</b> selgub, kes öösel mõrvati.", "<b>Mängude</b> võitjad saavad kilbi: kilbiga mängijat ei saa öösel mõrvata.", "<b>Kullapott</b> kasvab iga mänguga. Lõpus jagavad võitjad poti omavahel."],
+  rules: ["<b>Ümarlaud</b> toimub iga kahe tunni tagant. Kõik hääletavad telefonis, keda pagendada.", "<b>Öösel</b> valivad reeturid ohvri. Kõik teised teevad samal ajal oma öise ülesande.", "<b>Hommikusöögil</b> selgub, kes öösel mõrvati.", "<b>Kilp:</b> enne ööd annab mängudes juhtiv võistkond salaja kellelegi kilbi. Kilbiga mängijat ei saa öösel mõrvata. Keegi ei tea, kellel see on.", "<b>Kullapott</b> kasvab iga mänguga. Lõpus jagavad võitjad poti omavahel."],
   startRT: "Alusta ümarlauda", rt: n => `Ümarlaud ${n}`, rtSub: "Arutage ja hääletage siis telefonis.", votedN: (a, b) => `Hääletanud: ${a}/${b}`,
   closeVote: "Sulge hääletus", notAll: "Kõik pole hääletanud. Sulgen ikkagi",
   tie: "Viik!", tieSub: names => `Hääletage uuesti: ${names}`,
@@ -213,7 +218,7 @@ const T = {
   wasA: n => `${n} oli…`, ultimatum: "Viimane reetur on paljastatud. Aga mäng jätkub: keegi teie seast on salaja valitud uueks reeturiks.",
   startNight: "Öö algab", nightTitle: "Öö on saabunud", nightSub: "Kõik teevad oma telefonis öise ülesande.", tasksDone: (a, b) => `Ülesanded: ${a}/${b}`,
   traitorsReady: "Reeturid on otsustanud ✓", traitorsThinking: "Reeturid alles mõtlevad…", breakfast: "Hommikusöök ☀️",
-  breakfastTitle: "Hommikusöök", breakfastSuspense: "Kõik tulevad hommikusöögile… peale ühe?", murderedIs: "Öösel mõrvati", nobody: "Öösel ei surnud keegi!",
+  breakfastTitle: "Hommikusöök", breakfastSuspense: "Kõik tulevad hommikusöögile… peale ühe?", murderedIs: "Öösel mõrvati", nobody: "Öösel ei surnud keegi!", saved: "Reeturid ründasid, aga kilp päästis ohvri!",
   suspects: "Öised kahtlustused", newRT: "Uus ümarlaud", endVoteBtn: "Lõpuhääletus",
   endTitle: "Lõpuhääletus", endSub: "Kui kõik hääletavad lõpetamise poolt, mäng lõpeb ja rollid paljastatakse.", closeEnd: "Sulge lõpuhääletus",
   endResult: (e, b) => `Lõpetada: ${e} · Pagendada: ${b}. Mäng jätkub!`,
@@ -221,7 +226,7 @@ const T = {
   winnerReady: w => w === "faithful" ? "Kõik reeturid on leitud!" : "Reetureid on sama palju kui ustavaid. Reeturid on võitnud!",
   showWinners: "Näita võitjaid", finish: "Lõpeta mäng", reallyFinish: "Lõpetan mängu ja paljastan rollid",
   overTitle: w => w === "faithful" ? "Ustavad võitsid!" : "Reeturid võitsid!", potShare: n => `Võitjad jagavad kullapoti (${n} 💰) omavahel.`,
-  potLbl: "Kullapott", shieldBtn: "🛡️ Anna kilp", shieldPick: "Kellele?", shieldGiven: "Kilp antud ✓", shieldNone: "Kilpi pole",
+  potLbl: "Kullapott", shieldTeam: "🛡️ Kilbi annavad:", shieldVotesN: (a, b) => `Kilbihääled: ${a}/${b}`, shieldNoTeam: "Täna kilpi ei anta",
   playersH: "Mängijad", alive: "elus", murderedL: "mõrvatud", banishedL: "pagendatud", hostInfo: "Saatejuht rolle ei näe. Saad ka ise oma telefonis kaasa mängida.",
   unlock: "Ava", lockedOutL: "Lukus:"
 };
@@ -360,7 +365,7 @@ function phone(code) {
         <p class="muted" style="margin:0;font-size:14px">${T.voteHelp}</p></div>`;
     } else if (ph === "night") {
       body = taskOpen ? nightTask(me) : `<div class="task"><h2>${T.night}</h2><p class="muted" style="margin:0">${T.taskHint}</p>
-        ${me.nightPick ? `<p style="margin:0">${T.done}</p>` : ""}
+        ${me.nightPick ? `<p style="margin:0">${T.done}</p>` : ""}${me.shieldVoter && !me.shieldVote ? `<div class="banner gold">${T.shieldNudge}</div>` : ""}
         <button type="button" class="btn gold" id="openTask">${T.openTask}</button></div>`;
     } else {
       body = `<div class="banner"><b>${T.lookTv}</b></div>`;
@@ -397,13 +402,20 @@ function phone(code) {
         ${rs === "offered" ? `<div class="banner red">${T.recruitWait(esc(rt))}</div>` : rs === "accepted" ? `<div class="banner red">${T.recruitYes(esc(rt))}</div>` : rs === "declined" ? `<div class="banner">${T.recruitNo(esc(rt))}</div>` : `
         <div class="choices">${targets.map(p => `<button type="button" class="choice" data-n="${p.id}" aria-pressed="${pick && pick.target === p.id && pick.kind === mode}">${esc(p.name)}</button>`).join("")}</div>
         ${partner}<p class="muted" style="margin:0;font-size:14px">${allAgree ? T.agreed : T.agreeHint}</p>`}
-        <button type="button" class="btn" id="closeTask">${T.close}</button></div>`;
+        ${shieldPart(me)}<button type="button" class="btn" id="closeTask">${T.close}</button></div>`;
     }
     const pick = me.nightPick && me.nightPick.kind === "suspect" ? me.nightPick.target : null;
     return `<div class="task"><h2>${T.suspect}</h2>
       <div class="choices">${others.map(p => `<button type="button" class="choice" data-n="${p.id}" aria-pressed="${pick === p.id}">${esc(p.name)}</button>`).join("")}</div>
       <p class="muted" style="margin:0;font-size:14px">${pick ? T.done : T.suspectHint}</p>
-      <button type="button" class="btn" id="closeTask">${T.close}</button></div>`;
+      ${shieldPart(me)}<button type="button" class="btn" id="closeTask">${T.close}</button></div>`;
+  }
+  // Players of the team leading in the party games pick, in secret, who gets tonight's shield.
+  function shieldPart(me) {
+    if (!me.shieldVoter) return "";
+    return `<h2 style="margin-top:8px">${T.shieldQ}</h2>
+      <div class="choices">${aliveOf(S).map(p => `<button type="button" class="choice" data-sh="${p.id}" aria-pressed="${me.shieldVote === p.id}">${esc(p.name)}${me.shieldVote === p.id ? "<small>✓</small>" : ""}</button>`).join("")}</div>
+      <p class="muted" style="margin:0;font-size:14px">${me.shieldVote ? T.shieldDone : T.shieldHint}</p>`;
   }
   function bind(me) {
     const seal = $("#seal");
@@ -425,6 +437,7 @@ function phone(code) {
       const kind = me.role === "traitor" && me.actsTonight ? mode : "suspect";
       act("reeturid_night", { p_kind: kind, p_target: b.dataset.n }); idle();
     });
+    document.querySelectorAll("[data-sh]").forEach(b => b.onclick = () => { act("reeturid_shield", { p_target: b.dataset.sh }); idle(); });
     const acc = $("#acc"), dec = $("#dec");
     if (acc) acc.onclick = () => act("reeturid_recruit_answer", { p_accept: true });
     if (dec) dec.onclick = () => act("reeturid_recruit_answer", { p_accept: false });
@@ -438,6 +451,9 @@ function phone(code) {
 // ---------------------------------------------------------------- TV / host
 function tv() {
   let H = lsGet("rt-host"), S = null, P = null, anim = { key: null, step: 0, timer: null, done: false };
+  // Who gives tonight's shield. Remembered between nights, because the same team often leads again.
+  let shTeam = new Set(lsGet("rt-shteam") || []);
+  const saveTeam = () => lsSet("rt-shteam", [...shTeam]);
   const create = async () => {
     app.innerHTML = `<main class="landing"><div class="logo">${T.title}</div><p class="muted">…</p></main>`;
     try { H = await rpc("reeturid_create", { p_settings: {} }); lsSet("rt-host", H); boot(); }
@@ -457,7 +473,9 @@ function tv() {
   function sideList() {
     // Keep the result off the list until the TV has revealed it.
     const hiddenOut = (S.phase === "votes" && !anim.done) ? S.banishedId : (S.phase === "breakfast" && !anim.step) ? S.murderedId : null;
-    const view = S.players.map(p => p.id === hiddenOut ? { ...p, status: "alive" } : p);
+    // During "… oli" the banished player's role stays off the list until the big reveal.
+    const hiddenRole = S.phase === "banished" && !anim.step ? S.banishedId : null;
+    const view = S.players.map(p => p.id === hiddenOut ? { ...p, status: "alive" } : p.id === hiddenRole ? { ...p, role: null } : p);
     const ic = p => p.status === "murdered" ? "☠" : p.status === "banished" ? "⚖" : "●";
     return `<aside class="side"><h3>${T.playersH.toUpperCase()} · ${view.filter(p => p.status === "alive").length}/${S.players.length}</h3>
       <ul class="plist">${view.map(p => `<li class="${p.status !== "alive" ? "out" : ""}"><span class="ic" aria-hidden="true">${ic(p)}</span><span>${esc(p.name)}</span>
@@ -504,14 +522,15 @@ function tv() {
     }
     if (ph === "night") {
       return `<div class="moon" aria-hidden="true"></div><h1>${T.nightTitle}</h1><p class="sub">${T.nightSub}</p>
-        <div class="status-row"><span class="chip">${T.tasksDone(S.nightDone || 0, alive.length)}</span><span class="chip ${S.host.traitorsReady ? "ok" : ""}">${S.host.traitorsReady ? T.traitorsReady : T.traitorsThinking}</span></div>`;
+        <div class="status-row"><span class="chip">${T.tasksDone(S.nightDone || 0, alive.length)}</span><span class="chip ${S.host.traitorsReady ? "ok" : ""}">${S.host.traitorsReady ? T.traitorsReady : T.traitorsThinking}</span>
+        ${(S.host.shieldVoters || []).length ? `<span class="chip ${S.host.shieldVotes >= S.host.shieldVoters.length ? "ok" : ""}">${T.shieldVotesN(S.host.shieldVotes, S.host.shieldVoters.length)}</span>` : ""}</div>`;
     }
     if (ph === "breakfast") {
       const key = "bf" + S.night;
       if (anim.key !== key) { clearInterval(anim.timer); anim = { key, step: 0 }; anim.timer = setTimeout(() => { anim.step = 1; render(); }, 3200); }
       const sus = (S.suspects || []).slice(0, 5), max = Math.max(1, ...sus.map(s => s.count));
       return `<h1>${T.breakfastTitle}</h1>
-        ${!anim.step ? `<p class="sub suspense">${T.breakfastSuspense}</p>` : S.murderedId ? `<p class="sub fade-in">${T.murderedIs}</p><div class="huge fade-in">${esc(nameOf(S, S.murderedId))}</div>` : `<div class="huge fade-in faithful" style="font-size:clamp(40px,5vw,84px)">${T.nobody}</div>`}
+        ${!anim.step ? `<p class="sub suspense">${T.breakfastSuspense}</p>` : S.murderedId ? `<p class="sub fade-in">${T.murderedIs}</p><div class="huge fade-in">${esc(nameOf(S, S.murderedId))}</div>` : `<div class="huge fade-in faithful" style="font-size:clamp(40px,5vw,84px)">${S.shieldSaved ? T.saved : T.nobody}</div>`}
         ${anim.step && S.winner ? `<p class="sub fade-in"><b>${T.winnerReady(S.winner)}</b></p>` : ""}
         ${anim.step && sus.length ? `<div class="tally fade-in"><p class="sub" style="margin:0">${T.suspects}</p>${sus.map(s => `<div class="row"><span>${esc(nameOf(S, s.id))}</span><span class="bar"><i style="width:${s.count / max * 100}%"></i></span><span>${s.count}</span></div>`).join("")}</div>` : ""}`;
     }
@@ -539,10 +558,13 @@ function tv() {
     }
     if (ph === "night") b.push(btn("breakfast", T.breakfast, "gold"));
     if (ph === "endvote") b.push(btn("closeEnd", T.closeEnd, "gold"));
-    const shieldUi = !["lobby", "over"].includes(ph) ? `<span class="grow"></span>
-      <label class="muted" for="shSel">${S.host.shieldGiven ? T.shieldGiven : T.shieldNone}</label>
-      <select id="shSel"><option value="">${T.shieldPick}</option>${aliveOf(S).map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join("")}</select>
-      ${btn("shield", T.shieldBtn)}` : `<span class="grow"></span>`;
+    // Before and during the night: mark the players of the leading team. Everyone knows which team leads,
+    // so this is shown openly; whom they protect stays secret on their phones.
+    const canTeam = (["banished", "breakfast", "day"].includes(ph) && !w) || ph === "night";
+    if (ph === "night") shTeam = new Set(S.host.shieldVoters || []);
+    const shieldUi = canTeam ? `<span class="grow"></span><span class="shteam"><span class="muted">${T.shieldTeam}</span>
+      ${aliveOf(S).map(p => `<button type="button" class="btn small" data-st="${p.id}" aria-pressed="${shTeam.has(p.id)}">${esc(p.name)}</button>`).join("")}
+      ${shTeam.size ? "" : `<span class="muted">${T.shieldNoTeam}</span>`}</span>` : `<span class="grow"></span>`;
     const tail = (ph !== "lobby" && ph !== "over" ? btn("finishNow", T.finish, "quiet") : "") + btn("newGame", T.newGame, "quiet");
     return `<div class="controls">${b.join("")}${shieldUi}${tail}</div>`;
   }
@@ -570,7 +592,7 @@ function tv() {
     if (cv) { const pool = aliveOf(S); if (pool.every(p => p.voted)) cv.onclick = () => act("close_vote"); else armed(cv, T.notAll, () => act("close_vote")); }
     on("skip", () => { clearInterval(anim.timer); anim.step = anim.order.length; anim.done = true; anim.skipped = true; render(); });
     on("revealRole", () => act("reveal_role"));
-    on("night", () => act("night"));
+    on("night", () => act("night", { shieldVoters: [...shTeam].filter(id => aliveOf(S).some(p => p.id === id)) }));
     on("breakfast", () => act("breakfast"));
     on("endvote", () => act("endvote"));
     on("closeEnd", () => act("close_endvote"));
@@ -578,7 +600,10 @@ function tv() {
     armed($("#finishNow"), T.reallyFinish, () => act("finish"));
     const fresh = () => { lsDel("rt-host"); P && P.stop(); anim = { key: null, step: 0 }; create(); };
     if (S.phase === "lobby" && !S.players.length) on("newGame", fresh); else armed($("#newGame"), T.reallyNew, fresh);
-    on("shield", () => { const id = $("#shSel").value; if (!id) return toast(T.shieldPick); act("shield", { id }).then(() => toast(T.shieldGiven)); });
+    document.querySelectorAll("[data-st]").forEach(b => b.onclick = () => {
+      const id = b.dataset.st; shTeam.has(id) ? shTeam.delete(id) : shTeam.add(id); saveTeam();
+      if (S.phase === "night") act("shield_team", { shieldVoters: [...shTeam] }); else render();
+    });
     document.querySelectorAll("[data-coin]").forEach(b => b.onclick = () => act("coins", { delta: +b.dataset.coin }));
     document.querySelectorAll("[data-kick]").forEach(b => b.onclick = () => act("kick", { id: b.dataset.kick }));
     document.querySelectorAll("[data-unlock]").forEach(b => b.onclick = () => act("unlock", { id: b.dataset.unlock }));

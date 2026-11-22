@@ -74,6 +74,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: .04e
 .task h2 { font-size: 22px; }
 .choices { display: grid; gap: 8px; }
 .choice { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 56px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel-2); font-weight: 800; font-size: 19px; text-align: left; cursor: pointer; }
+.sep { border: 0; border-top: 1px dashed var(--line); margin: 6px 0; width: 100%; }
 .choice[aria-pressed="true"] { border-color: var(--gold); background: #33280f; box-shadow: inset 0 0 0 1px var(--gold); }
 .choice small { font-weight: 600; color: var(--muted); font-size: 13px; }
 .seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--panel-2); border-radius: 12px; padding: 4px; gap: 4px; }
@@ -196,8 +197,9 @@ const T = {
   agreeHint: "Kõik reeturid peavad valima sama inimese.", agreed: "Olete ühel meelel ✓", partnerPick: (n, t) => `${n} valis: ${t}`,
   suspect: "Keda kahtlustad kõige rohkem?", suspectHint: "Hommikul näeb teleris, keda kahtlustati kõige rohkem. Kes keda kahtlustas, jääb saladuseks.",
   done: "Tehtud ✓ Võid valikut muuta.", close: "Sulge",
-  recruitWait: n => `Pakkumine on tehtud. Ootame, mida ${n} vastab…`, recruitYes: n => `${n} nõustus! Nüüd on ta üks teie seast.`, recruitNo: n => `${n} keeldus.`,
-  offerTitle: "Reeturid tahavad sind enda hulka", offerText: "Kui nõustud, saad reeturiks ja näed teisi reetureid. Kui keeldud, jääd ustavaks.", accept: "Nõustun", decline: "Keeldun",
+  recruitWait: n => `Pakkumine on tehtud. Ootame, mida ${n} vastab…`, recruitYes: n => `${n} nõustus! Nüüd on ta üks teie seast.`, recruitNo: n => `${n} keeldus. Ta sureb täna öösel.`, recruitHint: "Ta näeb, kes teda värbab. Kui ta keeldub, sureb ta täna öösel.",
+  offerTitle: "Reeturid tahavad sind enda hulka", offerWho: n => `Sind värbavad: <b>${n}</b>.`,
+  offerText: "Kui nõustud, saad reeturiks ja mängid nüüdsest nende poolel. Kui keeldud, sind mõrvatakse täna öösel. Ära räägi kellelegi, kes sind värbas.", accept: "Nõustun", decline: "Keeldun ja suren",
   shield: "🛡️ Sul on kilp: täna öösel ei saa sind mõrvata.",
   shieldQ: "🛡️ Teie võistkond annab täna kilbi. Keda kaitsete?", shieldHint: "Kilbi saab see, kes saab teie võistkonnalt kõige rohkem hääli. Keegi ei saa teada, kellele see läks.",
   shieldDone: "Kilbihääl antud ✓ Võid valikut muuta.", shieldNudge: "🛡️ Sina annad täna koos oma võistkonnaga kilbi. Ava öine ülesanne.",
@@ -365,7 +367,7 @@ function phone(code) {
         <p class="muted" style="margin:0;font-size:14px">${T.voteHelp}</p></div>`;
     } else if (ph === "night") {
       body = taskOpen ? nightTask(me) : `<div class="task"><h2>${T.night}</h2><p class="muted" style="margin:0">${T.taskHint}</p>
-        ${me.nightPick ? `<p style="margin:0">${T.done}</p>` : ""}${me.shieldVoter && !me.shieldVote ? `<div class="banner gold">${T.shieldNudge}</div>` : ""}
+        ${me.suspectPick ? `<p style="margin:0">${T.done}</p>` : ""}${me.shieldVoter && !me.shieldVote ? `<div class="banner gold">${T.shieldNudge}</div>` : ""}
         <button type="button" class="btn gold" id="openTask">${T.openTask}</button></div>`;
     } else {
       body = `<div class="banner"><b>${T.lookTv}</b></div>`;
@@ -382,7 +384,7 @@ function phone(code) {
         ${body}
         ${seal}
       </main>
-      ${me.recruitOffer ? `<div class="overlay"><div class="task"><h2>${T.offerTitle}</h2><p style="margin:0">${T.offerText}</p>
+      ${me.recruitOffer ? `<div class="overlay"><div class="task"><h2>${T.offerTitle}</h2>${(me.recruiters || []).length ? `<p style="margin:0">${T.offerWho(me.recruiters.map(esc).join(", "))}</p>` : ""}<p style="margin:0">${T.offerText}</p>
         <button type="button" class="btn red" id="acc">${T.accept}</button><button type="button" class="btn" id="dec">${T.decline}</button></div></div>` : ""}`;
     bind(me);
   }
@@ -397,18 +399,21 @@ function phone(code) {
       const rs = me.recruitState, rt = me.recruitTarget ? nameOf(S, me.recruitTarget) : "";
       const partner = me.picks.filter(p => p.id !== me.id).map(p => `<div class="banner">${T.partnerPick(esc(nameOf(S, p.id)), (p.kind === "recruit" ? T.recruit + ": " : "") + esc(nameOf(S, p.target)))}</div>`).join("");
       const allAgree = me.picks.length === me.fellows.filter(f => f.status === "alive").length + 1 && new Set(me.picks.map(p => p.kind + p.target)).size === 1;
-      return `<div class="task"><h2>${mode === "recruit" ? T.pickRecruit : T.pickVictim}</h2>
+      return `<div class="task">${suspectPart(me)}<hr class="sep"><h2>${mode === "recruit" ? T.pickRecruit : T.pickVictim}</h2>
         ${me.canRecruit && !rs ? `<div class="seg"><button type="button" data-mode="murder" aria-pressed="${mode === "murder"}">${T.murder}</button><button type="button" data-mode="recruit" aria-pressed="${mode === "recruit"}">${T.recruit}</button></div>` : ""}
         ${rs === "offered" ? `<div class="banner red">${T.recruitWait(esc(rt))}</div>` : rs === "accepted" ? `<div class="banner red">${T.recruitYes(esc(rt))}</div>` : rs === "declined" ? `<div class="banner">${T.recruitNo(esc(rt))}</div>` : `
         <div class="choices">${targets.map(p => `<button type="button" class="choice" data-n="${p.id}" aria-pressed="${pick && pick.target === p.id && pick.kind === mode}">${esc(p.name)}</button>`).join("")}</div>
-        ${partner}<p class="muted" style="margin:0;font-size:14px">${allAgree ? T.agreed : T.agreeHint}</p>`}
+        ${partner}<p class="muted" style="margin:0;font-size:14px">${allAgree ? T.agreed : mode === "recruit" ? T.agreeHint + " " + T.recruitHint : T.agreeHint}</p>`}
         ${shieldPart(me)}<button type="button" class="btn" id="closeTask">${T.close}</button></div>`;
     }
-    const pick = me.nightPick && me.nightPick.kind === "suspect" ? me.nightPick.target : null;
-    return `<div class="task"><h2>${T.suspect}</h2>
-      <div class="choices">${others.map(p => `<button type="button" class="choice" data-n="${p.id}" aria-pressed="${pick === p.id}">${esc(p.name)}</button>`).join("")}</div>
-      <p class="muted" style="margin:0;font-size:14px">${pick ? T.done : T.suspectHint}</p>
-      ${shieldPart(me)}<button type="button" class="btn" id="closeTask">${T.close}</button></div>`;
+    return `<div class="task">${suspectPart(me)}${shieldPart(me)}<button type="button" class="btn" id="closeTask">${T.close}</button></div>`;
+  }
+  // Everyone, traitors too, names the person they suspect most. Same screen for all, so a glance gives nothing away.
+  function suspectPart(me) {
+    const pick = me.suspectPick;
+    return `<h2>${T.suspect}</h2>
+      <div class="choices">${aliveOf(S).filter(p => p.id !== me.id).map(p => `<button type="button" class="choice" data-sus="${p.id}" aria-pressed="${pick === p.id}">${esc(p.name)}${pick === p.id ? "<small>✓</small>" : ""}</button>`).join("")}</div>
+      <p class="muted" style="margin:0;font-size:14px">${pick ? T.done : T.suspectHint}</p>`;
   }
   // Players of the team leading in the party games pick, in secret, who gets tonight's shield.
   function shieldPart(me) {
@@ -433,10 +438,8 @@ function phone(code) {
     const ot = $("#openTask"); if (ot) ot.onclick = () => { taskOpen = true; render(); idle(); };
     const ct = $("#closeTask"); if (ct) ct.onclick = () => { taskOpen = false; render(); };
     document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { mode = b.dataset.mode; render(); idle(); });
-    document.querySelectorAll("[data-n]").forEach(b => b.onclick = () => {
-      const kind = me.role === "traitor" && me.actsTonight ? mode : "suspect";
-      act("reeturid_night", { p_kind: kind, p_target: b.dataset.n }); idle();
-    });
+    document.querySelectorAll("[data-n]").forEach(b => b.onclick = () => { act("reeturid_night", { p_kind: mode, p_target: b.dataset.n }); idle(); });
+    document.querySelectorAll("[data-sus]").forEach(b => b.onclick = () => { act("reeturid_night", { p_kind: "suspect", p_target: b.dataset.sus }); idle(); });
     document.querySelectorAll("[data-sh]").forEach(b => b.onclick = () => { act("reeturid_shield", { p_target: b.dataset.sh }); idle(); });
     const acc = $("#acc"), dec = $("#dec");
     if (acc) acc.onclick = () => act("reeturid_recruit_answer", { p_accept: true });
